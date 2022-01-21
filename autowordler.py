@@ -16,6 +16,27 @@ FAIL = -1
 f = open('file_letters.json', 'r')
 words = json.load(f)
 
+def count_letters():
+    letter_dict = {}
+    for l in string.ascii_lowercase:
+        letter_dict[l] = 0
+    for w in words:
+        for l in w:
+            letter_dict[l] += 1
+    return letter_dict
+
+def evaluate_words():
+    word_dict = {}
+    letter_dict = count_letters()
+    for w in words:
+        v = 0
+        # only count same letter once
+        for l in set(w):
+            v += letter_dict[l]
+        word_dict[w] = v
+    return {k:v for k,v in sorted(word_dict.items(), key=lambda item: item[1],
+        reverse=True)}
+
 class Wordle(object):
     def __init__(self, solution=None):
         if solution is not None:
@@ -82,7 +103,8 @@ def check_result(result):
     return all([status == MATCHED for (l, status) in result])
 
 def guess(letter_status, candidates):
-    return random.choice(candidates)
+    #return random.choice(candidates)
+    return candidates[0]
 
 def update_candidates(result, candidates):
     new_candidates = []
@@ -111,11 +133,21 @@ def update_candidates(result, candidates):
         if not removed:
             new_candidates.append(word)
     return new_candidates
+
+def sort_candidates(candidates):
+    ret = []
+    sorted_words = evaluate_words()
+    for k in sorted_words.keys():
+        if k not in candidates:
+            continue
+        ret.append(k)
+    return ret
     
-def solve(solution, first_word=None):
+def solve(solution, first_word=None, candidates=None):
     game = Wordle(solution)
     attempt = 1
-    candidates = copy.copy(words)
+    if not candidates:
+        candidates = copy.copy(words)
     while attempt <= MAXTRY:
         letter_status = game.get_letter_status()
         #print(letter_status)
@@ -142,12 +174,15 @@ def test(num, first_word=None, fixed_solution=None):
     success = []
     failure = []
     sum = 0
+    sorted_candidates = copy.copy(words)
+    sorted_candidates = sort_candidates(sorted_candidates)
     for i in range(num):
+        candidates = copy.copy(sorted_candidates)
         if fixed_solution:
             w = fixed_solution
         else:
             w = random.choice(words)
-        n = solve(w, first_word)
+        n = solve(w, first_word, candidates=candidates)
         if n == FAIL:
             failure.append(w)
         else:
