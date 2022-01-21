@@ -2,6 +2,9 @@ import json
 import random
 import string
 import sys
+import copy
+
+MAXTRY = 6
 
 UNKNOWN = 0
 NOTUSED = 1
@@ -73,9 +76,30 @@ class Wordle(object):
                 assert(False)
         return "".join(new_result)
 
+def check_result(result):
+    return all([status == MATCHED for (l, status) in result])
+
+def guess(letter_status, history, candidates):
+    return "teams"
+
+def solve(solution):
+    game = Wordle(solution)
+    attempt = 1
+    history = []
+    candidates = copy.copy(words)
+    while attempt <= MAXTRY:
+        letter_status = game.get_letter_status()
+        print(letter_status)
+        word = guess(letter_status, history, candidates)
+        result = game.check_word(word)
+        print(result)
+        if check_result(result):
+            return attempt
+        attempt += 1
+    return 1000
+
 # For human 
 if __name__ == "__main__":
-    MAXTRY = 6
     attempt = 1
     if len(sys.argv) > 1:
         solution = sys.argv[1]
