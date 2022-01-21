@@ -43,21 +43,35 @@ class Wordle(object):
         for index, letter in enumerate(word):
             #print("index: %d letter: %s word: %s tmp_solution: %s" % (index,letter,word,tmp_solution))
             if letter == tmp_solution[index]:
-                result.append(letter.upper())
+                result.append((letter, MATCHED))
                 tmp_solution[index] = '_'
                 self.letters[letter] = MATCHED
             elif letter in tmp_solution:
                 if self.letters[letter] != MATCHED:
                     self.letters[letter] = WRONG_PLACE
                 if tmp_solution.count(letter) > word[index+1:].count(letter):
-                    result.append(letter.lower())
+                    result.append((letter, WRONG_PLACE))
                 else:
-                    result.append("_")
+                    result.append((letter, NOTUSED))
             else:
                 if self.letters[letter] == UNKNOWN:
                     self.letters[letter] = NOTUSED
-                result.append("_")
+                result.append((letter, NOTUSED))
         return(result)
+
+    def check_word_str(self, word):
+        new_result = []
+        result = self.check_word(word)
+        for l, state in result:
+            if state == NOTUSED:
+                new_result.append("_")
+            elif state == WRONG_PLACE:
+                new_result.append(l.lower())
+            elif state == MATCHED:
+                new_result.append(l.upper())
+            else:
+                assert(False)
+        return "".join(new_result)
 
 # For human 
 if __name__ == "__main__":
@@ -84,6 +98,6 @@ if __name__ == "__main__":
         if answer == game.solution:
             print("success! %d/%d" % (attempt, MAXTRY))
             exit()
-        print("".join(game.check_word(answer)))
+        print(game.check_word_str(answer))
         attempt += 1
     print("failed. answer: %s" % solution)
