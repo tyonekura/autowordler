@@ -11,6 +11,8 @@ NOTUSED = 1
 WRONG_PLACE = 2
 MATCHED = 3
 
+FAIL = 1000
+
 f = open('file_letters.json', 'r')
 words = json.load(f)
 
@@ -80,8 +82,36 @@ def check_result(result):
     return all([status == MATCHED for (l, status) in result])
 
 def guess(letter_status, history, candidates):
-    return "teams"
+    return random.choice(candidates)
 
+def update_candidates(result, candidates):
+    new_candidates = []
+    for word in candidates:
+        removed = False
+        removing_letters = set()
+        keeping_letters = set()
+        for index, (l, status) in enumerate(result):
+            if status == NOTUSED:
+                removing_letters.add(l)
+            elif status == MATCHED:
+                if word[index] != l:
+                    removed = True
+                else:
+                    keeping_letters.add(l)
+            elif status == WRONG_PLACE:
+                if l not in word:
+                    removed = True
+                elif word[index] == l:
+                    removed = True
+                else:
+                    keeping_letters.add(l)
+        for letter in removing_letters:
+            if letter not in keeping_letters and letter in word:
+                removed = True
+        if not removed:
+            new_candidates.append(word)
+    return new_candidates
+    
 def solve(solution):
     game = Wordle(solution)
     attempt = 1
@@ -89,14 +119,36 @@ def solve(solution):
     candidates = copy.copy(words)
     while attempt <= MAXTRY:
         letter_status = game.get_letter_status()
-        print(letter_status)
+        #print(letter_status)
         word = guess(letter_status, history, candidates)
+        #print("trying %s" % word)
         result = game.check_word(word)
-        print(result)
+        #print(result)
         if check_result(result):
             return attempt
+        candidates.remove(word)
+        candidates = update_candidates(result, candidates)
+        if not candidates:
+            print("no candidate for %s. %s" % (game.solution, game.get_letter_status_str()))
+            return FAIL
         attempt += 1
-    return 1000
+    #print(candidates)
+    return FAIL
+
+def test(num):
+    success = []
+    failure = []
+    sum = 0
+    for i in range(num):
+        w = random.choice(words)
+        n = solve(w)
+        if n == FAIL:
+            failure.append(w)
+        else:
+            sum += n
+            success.append((w, n))
+    print("Success rate: %f Average step: %f" % (len(success)/num, sum/len(success)))
+    return success, failure
 
 # For human 
 if __name__ == "__main__":
