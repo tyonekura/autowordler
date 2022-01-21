@@ -48,7 +48,8 @@ def check_word(word, solution):
             else:
                 result.append("_")
         else:
-            letters[letter] = NOTUSED
+            if letters[letter] == UNKNOWN:
+                letters[letter] = NOTUSED
             result.append("_")
     return(result)
     
