@@ -11,7 +11,7 @@ NOTUSED = 1
 WRONG_PLACE = 2
 MATCHED = 3
 
-FAIL = 1000
+FAIL = -1
 
 f = open('file_letters.json', 'r')
 words = json.load(f)
@@ -81,7 +81,7 @@ class Wordle(object):
 def check_result(result):
     return all([status == MATCHED for (l, status) in result])
 
-def guess(letter_status, history, candidates):
+def guess(letter_status, candidates):
     return random.choice(candidates)
 
 def update_candidates(result, candidates):
@@ -112,15 +112,17 @@ def update_candidates(result, candidates):
             new_candidates.append(word)
     return new_candidates
     
-def solve(solution):
+def solve(solution, first_word=None):
     game = Wordle(solution)
     attempt = 1
-    history = []
     candidates = copy.copy(words)
     while attempt <= MAXTRY:
         letter_status = game.get_letter_status()
         #print(letter_status)
-        word = guess(letter_status, history, candidates)
+        if attempt == 1 and first_word:
+            word = first_word
+        else:
+            word = guess(letter_status, candidates)
         #print("trying %s" % word)
         result = game.check_word(word)
         #print(result)
@@ -135,13 +137,14 @@ def solve(solution):
     #print(candidates)
     return FAIL
 
-def test(num):
+def test(num, first_word=None):
+    random.seed(0)
     success = []
     failure = []
     sum = 0
     for i in range(num):
         w = random.choice(words)
-        n = solve(w)
+        n = solve(w, first_word)
         if n == FAIL:
             failure.append(w)
         else:
