@@ -137,13 +137,16 @@ def solve(solution, first_word=None):
     #print(candidates)
     return FAIL
 
-def test(num, first_word=None):
+def test(num, first_word=None, fixed_solution=None):
     random.seed(0)
     success = []
     failure = []
     sum = 0
     for i in range(num):
-        w = random.choice(words)
+        if fixed_solution:
+            w = fixed_solution
+        else:
+            w = random.choice(words)
         n = solve(w, first_word)
         if n == FAIL:
             failure.append(w)
