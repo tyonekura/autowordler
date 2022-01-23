@@ -13,7 +13,7 @@ MATCHED = 3
 
 FAIL = -1
 
-f = open('file_letters.json', 'r')
+f = open('five_letters.json', 'r')
 words = json.load(f)
 
 def count_letters():
@@ -36,6 +36,10 @@ def evaluate_words():
         word_dict[w] = v
     return {k:v for k,v in sorted(word_dict.items(), key=lambda item: item[1],
         reverse=True)}
+
+def get_word_rank(word):
+    sorted_words = list(evaluate_words().keys())
+    return sorted_words.index(word) + 1
 
 class Wordle(object):
     def __init__(self, solution=None):
@@ -152,28 +156,47 @@ def sort_candidates(candidates):
 AVG_STEP = 0
 SUCCESS_RATE = 1    
 RANDOM = 2
+PREFIX = 3
 
 def solve(solution, first_word=None, candidates=None, mode=AVG_STEP):
     game = Wordle(solution)
     attempt = 1
+    can_prefix = True
     if not candidates:
         candidates = copy.copy(words)
     while attempt <= MAXTRY:
         letter_status = game.get_letter_status()
         #print(letter_status)
-        if attempt == 1 and first_word:
+        if mode == PREFIX:
+            if attempt == 1:
+                word = 'whose'
+            elif attempt == 2:
+                if can_prefix and 'vital' in candidates:
+                    word = 'vital'
+                else:
+                    can_prefix = False
+                    word = get_most_bored(candidates)
+            elif attempt == 3:
+                if can_prefix and 'bumpy' in candidates:
+                    word = 'bumpy'
+                else:
+                    can_prefix = False
+                    word = get_most_bored(candidates)
+            else:
+                word = get_most_bored(candidates)
+        elif attempt == 1 and first_word:
             word = first_word
         else:
             if mode == RANDOM:
                 word = random.choice(candidates)
             elif mode == SUCCESS_RATE:
-                if len(candidates) > 130 and attempt <= 3:
+                if len(candidates) > 100 and attempt <= 3:
                     word = get_most_rare(candidates)
                 else:
                     word = get_most_bored(candidates)
             elif mode == AVG_STEP:
                 word = get_most_bored(candidates)
-        #print("%d: trying %s with %d candidates" % (attempt, word, len(candidates)))
+        print("%d: trying %s with %d candidates" % (attempt, word, len(candidates)))
         result = game.check_word(word)
         #print(result)
         if check_result(result):
