@@ -219,10 +219,15 @@ def test(num, first_word=None, fixed_solution=None, mode=AVG_STEP):
     sum = 0
     sorted_candidates = copy.copy(words)
     sorted_candidates = sort_candidates(sorted_candidates)
+    # test all words
+    if num == 0:
+        num = len(words)
     for i in range(num):
         candidates = copy.copy(sorted_candidates)
         if fixed_solution:
             w = fixed_solution
+        elif num == len(words):
+            w = words[i]
         else:
             w = random.choice(words)
         n = solve(w, first_word, candidates=candidates, mode=mode)
