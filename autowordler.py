@@ -13,6 +13,11 @@ MATCHED = 3
 
 FAIL = -1
 
+answers_2022 = [
+'rebus','boost','truss','siege','tiger','banal','slump','crank','gorge','query',
+'drink','favor','abbey','tangy','panic','solar','shire','proxy','point',
+'robot','prick','wince','crimp']
+
 f = open('five_letters.json', 'r')
 words = json.load(f)
 
@@ -236,8 +241,24 @@ def test(num, first_word=None, fixed_solution=None, mode=AVG_STEP):
         else:
             sum += n
             success.append((w, n))
-    print("Success rate: %f Average step: %f" % (len(success)/num, sum/len(success)))
-    return success, failure
+    #print("Success rate: %f Average step: %f" % (len(success)/num, sum/len(success)))
+    return success, failure, len(success)/num, sum/len(success)
+
+def test_2022(mode=AVG_STEP):
+    n = 1
+    if mode==RANDOM:
+        n = 100
+    rate_sum = 0
+    step_sum = 0
+    for answer in answers_2022:
+        #print(answer)
+        s,f,sr,savg = test(n, None, answer, mode)
+        rate_sum+=sr
+        step_sum+=savg
+    print('mode:%d success rate: %f Average step: %f' % (mode,
+        rate_sum/len(answers_2022),
+        step_sum/len(answers_2022)))
+        
 
 # For human 
 if __name__ == "__main__":
