@@ -169,16 +169,18 @@ def solve(solution, first_word=None, candidates=None, mode=AVG_STEP):
         #print(letter_status)
         if mode == PREFIX:
             if attempt == 1:
-                word = 'whose'
+                word = 'bumpy'
             elif attempt == 2:
                 if can_prefix and 'vital' in candidates:
                     word = 'vital'
+                elif can_prefix and 'whose' in candidates:
+                    word = 'whose'
                 else:
                     can_prefix = False
                     word = get_most_bored(candidates)
             elif attempt == 3:
-                if can_prefix and 'bumpy' in candidates:
-                    word = 'bumpy'
+                if can_prefix and 'whose' in candidates:
+                    word = 'whose'
                 else:
                     can_prefix = False
                     word = get_most_bored(candidates)
@@ -196,7 +198,7 @@ def solve(solution, first_word=None, candidates=None, mode=AVG_STEP):
                     word = get_most_bored(candidates)
             elif mode == AVG_STEP:
                 word = get_most_bored(candidates)
-        print("%d: trying %s with %d candidates" % (attempt, word, len(candidates)))
+        #print("%d: trying %s with %d candidates" % (attempt, word, len(candidates)))
         result = game.check_word(word)
         #print(result)
         if check_result(result):
