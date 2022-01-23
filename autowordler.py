@@ -102,8 +102,14 @@ class Wordle(object):
 def check_result(result):
     return all([status == MATCHED for (l, status) in result])
 
-def guess(letter_status, candidates):
-    #return random.choice(candidates)
+def get_most_bored(candidates):
+    return candidates[0]
+
+def get_most_rare(candidates):
+    for w in reversed(candidates):
+        if len(set(w)) == 5:
+            return w
+    # didn't find 5 letter rare words
     return candidates[0]
 
 def update_candidates(result, candidates):
@@ -142,8 +148,12 @@ def sort_candidates(candidates):
             continue
         ret.append(k)
     return ret
-    
-def solve(solution, first_word=None, candidates=None):
+
+AVG_STEP = 0
+SUCCESS_RATE = 1    
+RANDOM = 2
+
+def solve(solution, first_word=None, candidates=None, mode=AVG_STEP):
     game = Wordle(solution)
     attempt = 1
     if not candidates:
@@ -154,8 +164,16 @@ def solve(solution, first_word=None, candidates=None):
         if attempt == 1 and first_word:
             word = first_word
         else:
-            word = guess(letter_status, candidates)
-        #print("trying %s" % word)
+            if mode == RANDOM:
+                word = random.choice(candidates)
+            elif mode == SUCCESS_RATE:
+                if len(candidates) > 130 and attempt <= 3:
+                    word = get_most_rare(candidates)
+                else:
+                    word = get_most_bored(candidates)
+            elif mode == AVG_STEP:
+                word = get_most_bored(candidates)
+        #print("%d: trying %s with %d candidates" % (attempt, word, len(candidates)))
         result = game.check_word(word)
         #print(result)
         if check_result(result):
@@ -169,7 +187,7 @@ def solve(solution, first_word=None, candidates=None):
     #print(candidates)
     return FAIL
 
-def test(num, first_word=None, fixed_solution=None):
+def test(num, first_word=None, fixed_solution=None, mode=AVG_STEP):
     random.seed(0)
     success = []
     failure = []
@@ -182,7 +200,7 @@ def test(num, first_word=None, fixed_solution=None):
             w = fixed_solution
         else:
             w = random.choice(words)
-        n = solve(w, first_word, candidates=candidates)
+        n = solve(w, first_word, candidates=candidates, mode=mode)
         if n == FAIL:
             failure.append(w)
         else:
