@@ -69,6 +69,6 @@ Considering words are picked up by Wordle author, some optimization can be done.
 
 1. Words that are too minor are not chosen. 
 2. We can exclude all words that were already used.
-3. pural words are less likely chosen. (I've not checked if it's ever. 2695 of 8636 ends with S. So, I can ignore those words until there is no candidate left.
+3. pural words are less likely chosen. 2695 of 8636 ends with S. Although there is non pural words like truss, I can ignore words ending with S until there is no candidate left.
 
 
